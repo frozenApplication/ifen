@@ -5,12 +5,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.mybatis.spring.annotation.*;
+
 @SpringBootApplication
-@MapperScan("com.example.demo.model.mapper")
+//@MapperScan("com.example.demo.modules.mapper")
 public class DemoApplication extends SpringBootServletInitializer {
-	public static void main(String[] args) {
-		SpringApplication.run(DemoApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+    }
 //
 //	@Override
 //	protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {

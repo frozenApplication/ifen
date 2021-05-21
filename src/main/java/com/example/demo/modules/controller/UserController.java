@@ -3,14 +3,15 @@ package com.example.demo.modules.controller;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.demo.exception.UserException;
-import com.example.demo.modules.entity.JsonWebToken;
+import com.example.demo.framework.jwt.contract.JWTContract;
+import com.example.demo.framework.jwt.entity.JsonWebToken;
 import com.example.demo.modules.entity.User;
-import com.example.demo.modules.mapper.JsonWebTokenMapper;
+import com.example.demo.framework.jwt.mapper.JsonWebTokenMapper;
 import com.example.demo.modules.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,8 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Controller // 标注为控制器，旗下方法返回值序列化为json
-public class Server {
+@RestController // 标注为控制器，旗下方法返回值序列化为json
+public class UserController {
 
 
     @Resource
@@ -75,17 +76,8 @@ public class Server {
         m.put("password", password);
         u = userMapper.selectOne(new QueryWrapper<User>().allEq(m));
         Map<String, Object> map = new HashMap<>();
-        String token;
-//        创建jwk，保存到数据库
-        try {
-            Algorithm algorithm = Algorithm.HMAC256("secret");
-            token = JWT.create()
-                    .withIssuer("auth0")
-                    .sign(algorithm);
-        } catch (JWTCreationException exception) {
-            //Invalid Signing configuration / Couldn't convert Claims.
-            token = null;
-        }
+
+
         u.setMobile(mobile);
         u.setPassword(password);
         map.put("code", 0);
@@ -105,7 +97,10 @@ public class Server {
         Map<String, Object> m = new HashMap<>();
         Map<String, Object> map = new HashMap<>();
         User u;
-        m.put("token", authorization);
+        String token;
+        token = JwtServer.verify(authorization);
+
+        m.put("token", token);
         List<JsonWebToken> jwts = jsonWebTokenMapper.selectByMap(m);
         Integer id = jwts.get(0).getId();
         u = userMapper.selectById(id);
@@ -129,8 +124,8 @@ public class Server {
     public Map updateCurrentUserMessage(String name, @RequestHeader(value = "Authorization")
             String authorization) {
 
-        Map<String, Object> map = new HashMap<>();
-        User u = new User();
+        Map<String, Object> map = new HashMap<>();      //设置json字典
+        User u = new User();                            //用户
 
 //        根据token、姓名，更新用户姓名信息
         if (authorization == null) {
@@ -211,7 +206,7 @@ public class Server {
 //        获取字节流
         ServletOutputStream servletOutputStream = response.getOutputStream();// 获取response
         response.setContentLength(io.available());  //获取文件长度
-        response.setHeader("Content-Type","application/octet-stream");    //服务器接受文件需要设定文件类型 octet-stream仅仅指8进制流
+        response.setHeader("Content-Type", "application/octet-stream");    //服务器接受文件需要设定文件类型 octet-stream仅仅指8进制流
         response.setHeader("Content-Disposition", String.format("attachment;filename=%s", filename));//
         servletOutputStream.write(io.readAllBytes()); //注入文件字节流在Stream中
 

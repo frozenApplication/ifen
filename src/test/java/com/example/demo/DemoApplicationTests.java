@@ -1,9 +1,9 @@
 package com.example.demo;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.example.demo.modules.entity.JsonWebToken;
+import com.example.demo.framework.jwt.entity.JsonWebToken;
 import com.example.demo.modules.entity.User;
-import com.example.demo.modules.mapper.JsonWebTokenMapper;
+import com.example.demo.framework.jwt.mapper.JsonWebTokenMapper;
 import com.example.demo.modules.mapper.UserMapper;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;

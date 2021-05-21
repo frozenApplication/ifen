@@ -1,4 +1,4 @@
-package com.example.demo.modules.entity;
+package com.example.demo.framework.jwt.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
