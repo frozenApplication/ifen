@@ -1,20 +1,14 @@
+spring:
+  profiles:
+    active: myhome
+
 user:
   mobile: ${random.key}
   password: ${random.value}
-  username: "lisi"
+  username: "DzornR9H0DW7UpdEmWba4fXRAw9KWvTWSqYFOA2J5OseYXkrSQT544ZxqtbfZHQX"
   created_at: "2015-09-08 15:02:31"
   updated_at: "2020-10-09 15:02:31"
 
+aaa:
+  secret: "DzornR9H0DW7UpdEmWba4fXRAw9KWvTWSqYFOA2J5OseYXkrSQT544ZxqtbfZHQX"
 
-
-spring:
-  servlet:
-    multipart:
-      max-file-size: 50MB
-
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://192.168.1.202:3306/tmp_common_db?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
-    username: root
-    password: 123456
-    platform: mysql

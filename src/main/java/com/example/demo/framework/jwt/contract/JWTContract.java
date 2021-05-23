@@ -1,7 +1,11 @@
 package com.example.demo.framework.jwt.contract;
 
-public interface JWTContract {
-    String encode(String issue);    //编码
+import org.springframework.stereotype.Component;
 
-    String decode(String jwt);      //解码
+import java.util.Map;
+
+public interface JWTContract {
+    String encode(Map<String, Object> message);    //编码
+
+    Map<String, ?> decode(String jwt);      //解码返回
 }

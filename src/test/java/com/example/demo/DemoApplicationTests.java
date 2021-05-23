@@ -1,14 +1,19 @@
 package com.example.demo;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.example.demo.framework.jwt.contract.JWTContract;
 import com.example.demo.framework.jwt.entity.JsonWebToken;
 import com.example.demo.modules.entity.User;
 import com.example.demo.framework.jwt.mapper.JsonWebTokenMapper;
 import com.example.demo.modules.mapper.UserMapper;
+import com.example.demo.modules.test.MultiBean;
+import com.example.demo.modules.test.MyBean;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Import;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
@@ -37,6 +42,29 @@ class DemoApplicationTests {
         List<User> userList = userMapper.selectList(new QueryWrapper<User>().allEq(map));
         Assert.assertEquals(2, userList.size());
         userList.forEach(System.out::println);
+    }
+
+    @Test
+    void useBean() {
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(MultiBean.class);
+        MyBean bean = (MyBean) context.getBean("bb1");    //在容器内部，存在多个相同返回值的bean方法，将会报错NoUniqueBeanDefinitionException
+        System.out.println(bean);
+    }
+
+    @Autowired
+    JWTContract jwtContract;
+
+    @Test
+    void jwtCreatorTest() {
+        System.out.println(jwtContract.encode(new HashMap<>() {{
+            put("hello", "world");
+        }}));
+    }
+
+    @Test
+    void decode() {
+        String s = jwtContract.decode("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJBdXRoMCIsImhlbGxvIjoid29ybGQiLCJleHAiOjE2MjE3Njk0NjAsImlhdCI6MTYyMTc2OTQzMH0.2bp5fmD-m7xDwKmMxP1QYLLUNxO8J-9IeL38fYwVBNo");
+        System.out.println(s);
     }
 
     @Test
