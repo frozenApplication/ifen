@@ -3,6 +3,7 @@ package com.example.demo.modules.controller;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.demo.exception.UserException;
@@ -11,6 +12,7 @@ import com.example.demo.framework.jwt.entity.JsonWebToken;
 import com.example.demo.modules.entity.User;
 import com.example.demo.framework.jwt.mapper.JsonWebTokenMapper;
 import com.example.demo.modules.mapper.UserMapper;
+import com.example.demo.modules.params.RegisterParamsStructure;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,12 +20,17 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
+/**
+ * 对于RESTFul的route配置，其下route映射的方法将不会显示调用具体的实现细节
+ */
 @RestController // 标注为控制器，旗下方法返回值序列化为json
 public class UserController {
 
@@ -36,25 +43,24 @@ public class UserController {
 
     /**
      * 用户注册
-     *
-     * @param mobile   :手机号 11位
-     * @param password 密码
-     * @return json信息
+     * @param register_params include mobile and password field param
+     * @return
      */
     @PostMapping("/api/v1/register")
-    public Map userRegister(String mobile, String password) {
-//        判断输入值是否正确
+    public Map userRegister(@Valid RegisterParamsStructure register_params) {
         Map<String, Object> map = new HashMap<>();
-
         User u = new User();
+//        insert information into the user table
 //        插入用户信息到user表
-        u.setMobile(mobile);
-        u.setUsername(mobile);
-        u.setPassword(password);
-        u.setCreated_at(LocalDateTime.now());
-        u.setUpdated_at(LocalDateTime.now());
-        userMapper.insert(u);
+//        u.setMobile(mobile);
+//        u.setUsername(mobile);
+//        u.setPassword(password);
+//        u.setCreated_at(LocalDateTime.now());
+//        u.setUpdated_at(LocalDateTime.now());
+//        userMapper.insert(u);
+//        make a function about results need to be given to the client.
 //        整理json信息
+
         map.put("code", 0);
         map.put("data", u);
         map.put("message", "access");
@@ -81,10 +87,13 @@ public class UserController {
         u.setMobile(mobile);
         u.setPassword(password);
         map.put("code", 0);
-        map.put("data", token);
+        map.put("data", m);
         map.put("user", u);
         return map;
     }
+
+    @Autowired
+    JWTContract jwtContract;
 
     /**
      * 获取用户信息
@@ -92,15 +101,17 @@ public class UserController {
      * @param authorization:String
      * @return Map
      */
-    @GetMapping("/api/v1/me")
+    @GetMapping("`/api/v1/me")
     public Map getCurrentUserMessage(@RequestHeader("Authorization") String authorization) {
+        Map<String, ?> decodeMap = jwtContract.decode(authorization);
         Map<String, Object> m = new HashMap<>();
         Map<String, Object> map = new HashMap<>();
         User u;
         String token;
-        token = JwtServer.verify(authorization);
-
-        m.put("token", token);
+//        json装载服务
+//        token = JwtServer.verify(authorization);
+        token = "test";//TODO 用于测试
+        m.put("token", 1);
         List<JsonWebToken> jwts = jsonWebTokenMapper.selectByMap(m);
         Integer id = jwts.get(0).getId();
         u = userMapper.selectById(id);
