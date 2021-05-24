@@ -1,5 +1,9 @@
-package com.example.demo.exception;
+package com.example.demo.exception.handler;
 
+import com.auth0.jwt.exceptions.SignatureVerificationException;
+import com.example.demo.exception.UserException;
+import com.example.demo.modules.data.JsonResult;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
@@ -15,14 +19,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 异常处理：
+ * 验证不通过抛出的
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    /**
+     * 处理参数验证不通过的
+     *
+     * @param e
+     * @return
+     */
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-//    @ExceptionHandler(MethodArgumentNotValidException.class)
     @ExceptionHandler(BindException.class)
-    public Map<String, String> parameterExceptionHandler(BindException e) {
-        Map<String, String> map = new HashMap<>();
+    public JsonResult ParameterExceptionHandler(BindException e) {
+        Map<String, Object> map = new HashMap<>();
+        String err = "has not error msg";
         // 获取异常信息
         BindingResult exceptions = e.getBindingResult();
 //         判断异常中是否有错误信息，如果存在就使用异常中的消息，否则使用默认消息
@@ -31,13 +45,25 @@ public class GlobalExceptionHandler {
             if (!errors.isEmpty()) {
 //                 这里列出了全部错误参数，按正常逻辑，只需要第一条错误即可
                 FieldError fieldError = (FieldError) errors.get(0);
-                map.put("error", fieldError.getDefaultMessage());
-                return map;
+                err = fieldError.getDefaultMessage();
             }
         }
-        map.put("code", "0");
-        map.put("data", "2");
-        map.put("msg", "has not error msg");
-        return map;
+        return new JsonResult(1, null, err);
+    }
+
+    @ExceptionHandler(DuplicateKeyException.class)
+    public JsonResult DataBaseMessageDuplicateExceptionHandler(DuplicateKeyException e) {
+
+        return new JsonResult(1, null, "the mobile has been registered.");
+    }
+
+    @ExceptionHandler(UserException.class)
+    public JsonResult JsonResultUserExceptionHandler(UserException e) {
+        return new JsonResult(1, null, e.getMessage());
+    }
+
+    @ExceptionHandler(SignatureVerificationException.class)
+    public JsonResult signatureExceptionHandler(SignatureVerificationException e) {
+        return new JsonResult(1, null, e.getMessage());
     }
 }

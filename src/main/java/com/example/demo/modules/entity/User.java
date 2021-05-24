@@ -1,5 +1,6 @@
 package com.example.demo.modules.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -7,7 +8,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import lombok.Data;
-
 import java.time.LocalDateTime;
 
 //使用ConfigurationProperties为user组件赋值
@@ -16,8 +16,8 @@ import java.time.LocalDateTime;
 @Data
 @TableName("user")
 public class User {
-    @TableId
-    private int id;
+    @TableId(type = IdType.AUTO)
+    private Integer id;
     private String mobile;
     //    当组件填充时注意字段，name在系统变量中存在，且优先级比自定义配置要高
     @TableField("name")
@@ -40,11 +40,11 @@ public class User {
         this.updated_at = updated_at;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

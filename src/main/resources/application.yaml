@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: myhome
+    active: dev
 
 user:
   mobile: ${random.key}

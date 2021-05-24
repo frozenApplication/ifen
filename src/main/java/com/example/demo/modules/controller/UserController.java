@@ -1,18 +1,16 @@
 package com.example.demo.modules.controller;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTCreationException;
-import com.auth0.jwt.interfaces.Claim;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.demo.exception.UserException;
 import com.example.demo.framework.jwt.contract.JWTContract;
-import com.example.demo.framework.jwt.entity.JsonWebToken;
+import com.example.demo.framework.media.service.FileService;
+import com.example.demo.modules.data.JsonResult;
+import com.example.demo.modules.data.NotPasswordUser;
 import com.example.demo.modules.entity.User;
 import com.example.demo.framework.jwt.mapper.JsonWebTokenMapper;
 import com.example.demo.modules.mapper.UserMapper;
-import com.example.demo.modules.params.RegisterParamsStructure;
+import com.example.demo.modules.params.UserRegisterStructure;
+import com.example.demo.modules.params.UserLoginStructure;
+import com.example.demo.modules.processors.UserOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,7 +22,6 @@ import javax.validation.Valid;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -34,93 +31,58 @@ import java.util.Map;
 @RestController // 标注为控制器，旗下方法返回值序列化为json
 public class UserController {
 
-
-    @Resource
-    UserMapper userMapper;
-    @Resource
-    JsonWebTokenMapper jsonWebTokenMapper;
-
+    @Autowired
+    UserOperation userOperation;
+    @Autowired
+    HttpServletResponse response;
 
     /**
      * 用户注册
-     * @param register_params include mobile and password field param
-     * @return
+     * @param register_params 包含mobile:String 和 mobile:String 两个依赖参数
+     * @return 返回json格式,code:int 0成功,1失败 /data:Map /message:String 成功或者失败信息
      */
     @PostMapping("/api/v1/register")
-    public Map userRegister(@Valid RegisterParamsStructure register_params) {
-        Map<String, Object> map = new HashMap<>();
-        User u = new User();
-//        insert information into the user table
-//        插入用户信息到user表
-//        u.setMobile(mobile);
-//        u.setUsername(mobile);
-//        u.setPassword(password);
-//        u.setCreated_at(LocalDateTime.now());
-//        u.setUpdated_at(LocalDateTime.now());
-//        userMapper.insert(u);
-//        make a function about results need to be given to the client.
-//        整理json信息
+    public JsonResult userRegister(@Valid UserRegisterStructure register_params) {
 
-        map.put("code", 0);
-        map.put("data", u);
-        map.put("message", "access");
-        return map;
+//        插入用户信息到user表,手机号存在会抛出异常，处理在异常句柄中;
+        User user = userOperation.createUserAccount(register_params);
+//        make a function about results need to be given to the client.
+        return new JsonResult(0, new NotPasswordUser(user), "success");
     }
+
 
     /**
      * 用户登录
-     *
-     * @param mobile   ：手机号11位
-     * @param password ：密码
-     * @return
+     * @param loginMessage 包含mobile:String 和 mobile:String 两个依赖参数
+     * @return 返回json格式,code:int 0成功,1失败 /data:Map /message:String 成功或者失败信息
      */
     @PostMapping("/api/v1/login")
-    public Map userLogin(String mobile, String password) {
-        User u;
-        Map<String, String> m = new HashMap<>();
-        m.put("mobile", mobile);
-        m.put("password", password);
-        u = userMapper.selectOne(new QueryWrapper<User>().allEq(m));
-        Map<String, Object> map = new HashMap<>();
+    public JsonResult userLogin(@Valid UserLoginStructure loginMessage) {
+        Map<String, Object> data = new HashMap<>();
+//        从数据库取出对应user实体
+        User user = userOperation.getUserByMobileAndPwd(loginMessage.getMobile(), loginMessage.getPassword());
+        if (user == null) return new JsonResult(1, null, "手机号或者密码错误");//数据库中没有对应用户时
+        String jwt = userOperation.generateJwtByUser(user);
+//        装载user、jwt信息
+        data.put("user", new NotPasswordUser(user));
+        data.put("token", jwt);
 
-
-        u.setMobile(mobile);
-        u.setPassword(password);
-        map.put("code", 0);
-        map.put("data", m);
-        map.put("user", u);
-        return map;
+        return new JsonResult(0, data, "success");
     }
 
-    @Autowired
-    JWTContract jwtContract;
 
     /**
      * 获取用户信息
      *
      * @param authorization:String
-     * @return Map
+     * @return 返回json格式,code:int 0成功,1失败 /data:Map /message:String 成功或者失败信息
      */
-    @GetMapping("`/api/v1/me")
-    public Map getCurrentUserMessage(@RequestHeader("Authorization") String authorization) {
-        Map<String, ?> decodeMap = jwtContract.decode(authorization);
-        Map<String, Object> m = new HashMap<>();
-        Map<String, Object> map = new HashMap<>();
-        User u;
-        String token;
-//        json装载服务
-//        token = JwtServer.verify(authorization);
-        token = "test";//TODO 用于测试
-        m.put("token", 1);
-        List<JsonWebToken> jwts = jsonWebTokenMapper.selectByMap(m);
-        Integer id = jwts.get(0).getId();
-        u = userMapper.selectById(id);
+    @GetMapping("/api/v1/me")
+    public JsonResult getCurrentUserMessage(@RequestHeader("Authorization") String authorization) {
+        User user = userOperation.getUserByJwt(authorization);
+        if (user == null) return new JsonResult(1, null, "the jwt is invalid.");
 
-//        u = getUser(id);
-        map.put("code", 0);
-        map.put("data", u);
-        map.put("message", "success");
-        return map;
+        return new JsonResult(0, new NotPasswordUser(user), "success");
     }
 
 
@@ -129,24 +91,19 @@ public class UserController {
      *
      * @param name:String
      * @param authorization:String
-     * @return Map
+     * @return 返回json格式,code:int 0成功,1失败 /data:Map /message:String 成功或者失败信息
      */
     @PutMapping("/api/v1/me")
-    public Map updateCurrentUserMessage(String name, @RequestHeader(value = "Authorization")
+    public JsonResult updateCurrentUserMessage(String name, @RequestHeader(value = "Authorization")
             String authorization) {
-
-        Map<String, Object> map = new HashMap<>();      //设置json字典
-        User u = new User();                            //用户
-
+//          验证jwt，正确后 获取token数据，根据其中的id获取数据库中的信息修改姓名
 //        根据token、姓名，更新用户姓名信息
-        if (authorization == null) {
-            throw new UserException();
-        }
-        map.put("code", 1);
-        map.put("data", u);
-        map.put("message", "success");
-
-        return map;
+        if (authorization == null) throw new UserException("please provide json wet token."); //没有jwt信息进行异常拦截处理
+        User user = userOperation.getUserByJwt(authorization); //通过token中payload下的id值查询User表中的记录，获得User实例
+        user.setUsername(name);
+        user.setUpdated_at(LocalDateTime.now());
+        userOperation.updateUser(user);
+        return new JsonResult(1, new NotPasswordUser(user), "success");
     }
 
     /**
@@ -155,31 +112,13 @@ public class UserController {
      * @param oldPassword :原始密码
      * @param password    :新密码
      * @param password2   :验证时的密码
-     * @return
+     * @return 返回json格式,code:int 0成功,1失败 /data:Map /message:String 成功或者失败信息
      */
     @PostMapping("/api/v1/change_pwd")
-    public Map updateUserPassword(String oldPassword, String password, String password2, @RequestHeader("Authorization") String token) {
-        Map<String, Object> map = new HashMap<>();
-        Map<String, Object> m = new HashMap<>();
-        User u;
-        String msg = "success";
-        m.put("token", token);
-        List<JsonWebToken> jwts = jsonWebTokenMapper.selectByMap(m);
-        Integer id = jwts.get(0).getId();
-        u = userMapper.selectById(id);
-        if (!password.equals(password2)) throw new UserException();
-
-        if (u.getPassword().equals(oldPassword)) {
-            u.setPassword(password);
-            userMapper.updateById(u);
-        } else {
-            msg = "original password is inconsistent. ";
-        }
-
-        map.put("code", 0);
-        map.put("data", u);
-        map.put("message", msg);
-        return map;
+    public JsonResult updateUserPassword(String oldPassword, String password, String password2, @RequestHeader("Authorization") String token) {
+        if (!password.equals(password2)) return new JsonResult(1, null, "password is inconsistent.");//验证新密码相同
+        User user = userOperation.UpdateUserPassword(oldPassword, password, token);
+        return new JsonResult(1, new NotPasswordUser(user), "success");
     }
 
 
@@ -190,40 +129,16 @@ public class UserController {
      * @return
      */
     @PostMapping("/api/v1/uploads")
-    public Map uploadFile(@RequestParam("file_of_uploader") MultipartFile file) throws IOException {
-//        获取文件流，进行保存
-        InputStream ins = file.getInputStream();
-        OutputStream os = new FileOutputStream("C:/file_store/" + file.getOriginalFilename());
-//        设定为大小不超过5M的文件
-//        保存到本地
-//        需要写入数据库吗？
-        os.write(ins.readAllBytes());
-        Map<String, Object> map = new HashMap<>();
-        map.put("code", 0);
-        map.put("data", "ok");
-        map.put("message", "success");
-        return map;
+    public JsonResult uploadFile(@RequestParam("file_of_uploader") MultipartFile file) throws IOException {
+        FileService.uploadFile(file);
+
+        return new JsonResult(0, "ok", "success");
     }
 
-    @Autowired
-    HttpServletResponse response;
 
     @GetMapping("/api/v1/file")
     public void downloadFile(@RequestParam("file") String filename) throws IOException {
-        filename = new String(filename.trim().getBytes("iso8859-1"), "UTF-8"); //url上的信息默认以ascII码编译,解码成utf-8
-        File file = new File("C:/file_store/" + filename);
-        if (!file.exists()) throw new FileNotFoundException();
-        InputStream io = new FileInputStream("C:/file_store/" + filename);
-//        获取字节流
-        ServletOutputStream servletOutputStream = response.getOutputStream();// 获取response
-        response.setContentLength(io.available());  //获取文件长度
-        response.setHeader("Content-Type", "application/octet-stream");    //服务器接受文件需要设定文件类型 octet-stream仅仅指8进制流
-        response.setHeader("Content-Disposition", String.format("attachment;filename=%s", filename));//
-        servletOutputStream.write(io.readAllBytes()); //注入文件字节流在Stream中
-
-
-        response.flushBuffer(); //刷新内存中的文件流
-
+        FileService.downloadFile(response, filename);
 
 //        根据文件名查找文件，然后返回文件流
 //        设置response表头

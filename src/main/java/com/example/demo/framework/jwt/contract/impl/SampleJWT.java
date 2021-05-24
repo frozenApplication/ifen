@@ -29,7 +29,7 @@ public class SampleJWT implements JWTContract {
     public String encode(Map<String, Object> params) {
         Algorithm algorithm = Algorithm.HMAC256(secret);
 
-//        装载信息，设置过期时间，
+//        装载信息，设置过期时间
         //        创建jwk，保存到数据库
         String token;
         try {

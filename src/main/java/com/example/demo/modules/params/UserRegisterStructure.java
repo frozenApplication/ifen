@@ -7,9 +7,8 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
-//@Component
 @Data
-public class RegisterParamsStructure {
+public class UserRegisterStructure {
     @Pattern(regexp = "^1[0-9]{10}$",message = "请输入正确的手机号")
     @NotEmpty(message = "mobile may not be empty")
     private String mobile;

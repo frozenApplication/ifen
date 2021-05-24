@@ -63,7 +63,7 @@ class DemoApplicationTests {
 
     @Test
     void decode() {
-        String s = jwtContract.decode("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJBdXRoMCIsImhlbGxvIjoid29ybGQiLCJleHAiOjE2MjE3Njk0NjAsImlhdCI6MTYyMTc2OTQzMH0.2bp5fmD-m7xDwKmMxP1QYLLUNxO8J-9IeL38fYwVBNo");
+        Map s = jwtContract.decode("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJBdXRoMCIsImhlbGxvIjoid29ybGQiLCJleHAiOjE2MjE3Njk0NjAsImlhdCI6MTYyMTc2OTQzMH0.2bp5fmD-m7xDwKmMxP1QYLLUNxO8J-9IeL38fYwVBNo");
         System.out.println(s);
     }
 
