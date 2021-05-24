@@ -1,17 +1,13 @@
 package com.example.demo.modules.processors;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.demo.exception.UserException;
 import com.example.demo.framework.jwt.contract.JWTContract;
-import com.example.demo.modules.data.JsonResult;
-import com.example.demo.modules.data.NotPasswordUser;
 import com.example.demo.modules.entity.User;
 import com.example.demo.modules.mapper.UserMapper;
-import com.example.demo.modules.params.UserRegisterStructure;
+import com.example.demo.modules.params.UserSampleStructure;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
@@ -54,7 +50,7 @@ public class UserOperation {
         return userMapper.selectById(id);
     }
 
-    public User createUserAccount(UserRegisterStructure params) {
+    public User createUserAccount(UserSampleStructure params) {
 //        不存在就然后插入，存在就抛出异常
         User u = new User();
         u.setMobile(params.getMobile());

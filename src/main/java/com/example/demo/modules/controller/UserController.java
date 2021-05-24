@@ -1,22 +1,16 @@
 package com.example.demo.modules.controller;
 
 import com.example.demo.exception.UserException;
-import com.example.demo.framework.jwt.contract.JWTContract;
 import com.example.demo.framework.media.service.FileService;
 import com.example.demo.modules.data.JsonResult;
 import com.example.demo.modules.data.NotPasswordUser;
 import com.example.demo.modules.entity.User;
-import com.example.demo.framework.jwt.mapper.JsonWebTokenMapper;
-import com.example.demo.modules.mapper.UserMapper;
-import com.example.demo.modules.params.UserRegisterStructure;
-import com.example.demo.modules.params.UserLoginStructure;
+import com.example.demo.modules.params.UserSampleStructure;
 import com.example.demo.modules.processors.UserOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.*;
@@ -42,7 +36,7 @@ public class UserController {
      * @return 返回json格式,code:int 0成功,1失败 /data:Map /message:String 成功或者失败信息
      */
     @PostMapping("/api/v1/register")
-    public JsonResult userRegister(@Valid UserRegisterStructure register_params) {
+    public JsonResult userRegister(@Valid UserSampleStructure register_params) {
 
 //        插入用户信息到user表,手机号存在会抛出异常，处理在异常句柄中;
         User user = userOperation.createUserAccount(register_params);
@@ -57,7 +51,7 @@ public class UserController {
      * @return 返回json格式,code:int 0成功,1失败 /data:Map /message:String 成功或者失败信息
      */
     @PostMapping("/api/v1/login")
-    public JsonResult userLogin(@Valid UserLoginStructure loginMessage) {
+    public JsonResult userLogin(@Valid UserSampleStructure loginMessage) {
         Map<String, Object> data = new HashMap<>();
 //        从数据库取出对应user实体
         User user = userOperation.getUserByMobileAndPwd(loginMessage.getMobile(), loginMessage.getPassword());
