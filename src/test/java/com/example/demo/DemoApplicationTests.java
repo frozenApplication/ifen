@@ -44,12 +44,7 @@ class DemoApplicationTests {
         userList.forEach(System.out::println);
     }
 
-    @Test
-    void useBean() {
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(MultiBean.class);
-        MyBean bean = (MyBean) context.getBean("bb1");    //在容器内部，存在多个相同返回值的bean方法，将会报错NoUniqueBeanDefinitionException
-        System.out.println(bean);
-    }
+
 
     @Autowired
     JWTContract jwtContract;

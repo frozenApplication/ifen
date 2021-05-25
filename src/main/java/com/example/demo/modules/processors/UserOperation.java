@@ -6,6 +6,7 @@ import com.example.demo.framework.jwt.contract.JWTContract;
 import com.example.demo.modules.entity.User;
 import com.example.demo.modules.mapper.UserMapper;
 import com.example.demo.modules.params.UserSampleStructure;
+import com.example.demo.modules.service.BaseEncode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +22,8 @@ public class UserOperation {
     UserMapper userMapper;
     @Autowired
     JWTContract jwtContract;
-
+    @Autowired
+    BaseEncode baseEncode;
     public String generateJwtByUser(User user) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", user.getId());
@@ -35,7 +37,7 @@ public class UserOperation {
         //        根据mobile与password寻找数据库信息
         Map<String, String> tempMap = new HashMap<>();
         tempMap.put("mobile", mobile);
-        tempMap.put("password", password);
+        tempMap.put("password", baseEncode.encode(password));
         User u = userMapper.selectOne(new QueryWrapper<User>().allEq(tempMap)); // user可能为null
         return u;
     }
@@ -50,12 +52,13 @@ public class UserOperation {
         return userMapper.selectById(id);
     }
 
+
     public User createUserAccount(UserSampleStructure params) {
 //        不存在就然后插入，存在就抛出异常
         User u = new User();
         u.setMobile(params.getMobile());
         u.setUsername(params.getMobile());
-        u.setPassword(params.getPassword());
+        u.setPassword(baseEncode.encode(params.getPassword()));//密码md5加密
         u.setCreated_at(LocalDateTime.now());
         u.setUpdated_at(LocalDateTime.now());
         userMapper.insert(u);
