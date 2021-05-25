@@ -6,8 +6,6 @@ import com.example.demo.framework.jwt.entity.JsonWebToken;
 import com.example.demo.modules.entity.User;
 import com.example.demo.framework.jwt.mapper.JsonWebTokenMapper;
 import com.example.demo.modules.mapper.UserMapper;
-import com.example.demo.modules.test.MultiBean;
-import com.example.demo.modules.test.MyBean;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +17,7 @@ import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @SpringBootTest
 class DemoApplicationTests {

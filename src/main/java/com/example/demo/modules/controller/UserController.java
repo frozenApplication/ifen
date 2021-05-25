@@ -1,7 +1,7 @@
 package com.example.demo.modules.controller;
 
 import com.example.demo.exception.UserException;
-import com.example.demo.framework.media.service.FileService;
+import com.example.demo.framework.media.service.impl.WebFileServiceImpl;
 import com.example.demo.modules.data.JsonResult;
 import com.example.demo.modules.data.NotPasswordUser;
 import com.example.demo.modules.entity.User;
@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.io.*;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,11 +29,14 @@ public class UserController {
     UserOperation userOperation;
     @Autowired
     HttpServletResponse response;
+    @Autowired
+    WebFileServiceImpl webFileService;
 
     /**
      * 用户注册
+     *
      * @param register_params 包含mobile:String 和 mobile:String 两个依赖参数
-     * @return 返回json格式,code:int 0成功,1失败 /data:Map /message:String 成功或者失败信息
+     * @return 返回json格式, code:int 0成功,1失败 /data:Map /message:String 成功或者失败信息
      */
     @PostMapping("/api/v1/register")
     public JsonResult userRegister(@Valid UserSampleStructure register_params) {
@@ -47,8 +50,9 @@ public class UserController {
 
     /**
      * 用户登录
+     *
      * @param loginMessage 包含mobile:String 和 mobile:String 两个依赖参数
-     * @return 返回json格式,code:int 0成功,1失败 /data:Map /message:String 成功或者失败信息
+     * @return 返回json格式, code:int 0成功,1失败 /data:Map /message:String 成功或者失败信息
      */
     @PostMapping("/api/v1/login")
     public JsonResult userLogin(@Valid UserSampleStructure loginMessage) {
@@ -69,7 +73,7 @@ public class UserController {
      * 获取用户信息
      *
      * @param authorization:String
-     * @return 返回json格式,code:int 0成功,1失败 /data:Map /message:String 成功或者失败信息
+     * @return 返回json格式, code:int 0成功,1失败 /data:Map /message:String 成功或者失败信息
      */
     @GetMapping("/api/v1/me")
     public JsonResult getCurrentUserMessage(@RequestHeader("Authorization") String authorization) {
@@ -85,7 +89,7 @@ public class UserController {
      *
      * @param name:String
      * @param authorization:String
-     * @return 返回json格式,code:int 0成功,1失败 /data:Map /message:String 成功或者失败信息
+     * @return 返回json格式, code:int 0成功,1失败 /data:Map /message:String 成功或者失败信息
      */
     @PutMapping("/api/v1/me")
     public JsonResult updateCurrentUserMessage(String name, @RequestHeader(value = "Authorization")
@@ -95,7 +99,7 @@ public class UserController {
         if (authorization == null) throw new UserException("please provide json wet token."); //没有jwt信息进行异常拦截处理
         User user = userOperation.getUserByJwt(authorization); //通过token中payload下的id值查询User表中的记录，获得User实例
         user.setUsername(name);
-        user.setUpdated_at(LocalDateTime.now());
+        user.setUpdatedAt(LocalDateTime.now());
         userOperation.updateUser(user);
         return new JsonResult(1, new NotPasswordUser(user), "success");
     }
@@ -106,7 +110,7 @@ public class UserController {
      * @param oldPassword :原始密码
      * @param password    :新密码
      * @param password2   :验证时的密码
-     * @return 返回json格式,code:int 0成功,1失败 /data:Map /message:String 成功或者失败信息
+     * @return 返回json格式, code:int 0成功,1失败 /data:Map /message:String 成功或者失败信息
      */
     @PostMapping("/api/v1/change_pwd")
     public JsonResult updateUserPassword(String oldPassword, String password, String password2, @RequestHeader("Authorization") String token) {
@@ -123,16 +127,17 @@ public class UserController {
      * @return
      */
     @PostMapping("/api/v1/uploads")
-    public JsonResult uploadFile(@RequestParam("file_of_uploader") MultipartFile file) throws IOException {
-        FileService.uploadFile(file);
+    public JsonResult uploadFile(@RequestParam("file_of_uploader") MultipartFile file, @RequestHeader("Authorization") String token) throws IOException {
+        webFileService.upload(file, userOperation.getUserIdByJwt(token));
 
-        return new JsonResult(0, "ok", "success");
+        return new JsonResult(0, file.getOriginalFilename(), "success");
     }
 
 
     @GetMapping("/api/v1/file")
-    public void downloadFile(@RequestParam("file") String filename) throws IOException {
-        FileService.downloadFile(response, filename);
+    public void downloadFile(@RequestParam("file") String filename, @RequestHeader("Authorization") String token) throws IOException {
+        Integer userId = userOperation.getUserIdByJwt(token);
+        webFileService.download(response, filename, userId);
 
 //        根据文件名查找文件，然后返回文件流
 //        设置response表头

@@ -2,12 +2,12 @@ spring:
   profiles:
     active: dev
 
-user:
-  mobile: ${random.key}
-  password: ${random.value}
-  username: "DzornR9H0DW7UpdEmWba4fXRAw9KWvTWSqYFOA2J5OseYXkrSQT544ZxqtbfZHQX"
-  created_at: "2015-09-08 15:02:31"
-  updated_at: "2020-10-09 15:02:31"
+#user:
+#  mobile: ${random.key}
+#  password: ${random.value}
+#  username: "DzornR9H0DW7UpdEmWba4fXRAw9KWvTWSqYFOA2J5OseYXkrSQT544ZxqtbfZHQX"
+#  created_at: "2015-09-08 15:02:31"
+#  updated_at: "2020-10-09 15:02:31"
 
 aaa:
   secret: "DzornR9H0DW7UpdEmWba4fXRAw9KWvTWSqYFOA2J5OseYXkrSQT544ZxqtbfZHQX"

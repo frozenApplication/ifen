@@ -11,8 +11,8 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 //使用ConfigurationProperties为user组件赋值
-@Component
-@ConfigurationProperties(prefix = "user")
+//@Component
+//@ConfigurationProperties(prefix = "user")
 @Data
 @TableName("user")
 public class User {
@@ -24,20 +24,22 @@ public class User {
     private String username;
     private String password;
     //    按以下规则注入日期
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime created_at;
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime updated_at;
+    @TableField("created_at")
+//    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createdAt;
+    @TableField("updated_at")
+//    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime updatedAt;
 
     public User() {
     }
 
-    public User(String mobile, String username, String password, LocalDateTime created_at, LocalDateTime updated_at) {
+    public User(String mobile, String username, String password, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.mobile = mobile;
         this.username = username;
         this.password = password;
-        this.created_at = created_at;
-        this.updated_at = updated_at;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     public Integer getId() {
@@ -72,20 +74,20 @@ public class User {
         this.password = password;
     }
 
-    public LocalDateTime getCreated_at() {
-        return created_at;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public void setCreated_at(LocalDateTime created_at) {
-        this.created_at = created_at;
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
-    public LocalDateTime getUpdated_at() {
-        return updated_at;
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setUpdated_at(LocalDateTime updated_at) {
-        this.updated_at = updated_at;
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     @Override
@@ -95,8 +97,8 @@ public class User {
                 ", mobile='" + mobile + '\'' +
                 ", name='" + username + '\'' +
                 ", password='" + password + '\'' +
-                ", created_at=" + created_at +
-                ", updated_at=" + updated_at +
+                ", created_at=" + createdAt +
+                ", updated_at=" + updatedAt +
                 '}';
     }
 

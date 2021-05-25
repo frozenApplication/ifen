@@ -1,6 +1,6 @@
 package com.example.demo.modules.service;
 
-public interface BaseEncode {
+public interface EncodeService {
     String encode(String RawMessage);
 
 

@@ -1,5 +1,6 @@
 package com.example.demo.exception.handler;
 
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.example.demo.exception.UserException;
 import com.example.demo.modules.data.JsonResult;
@@ -9,8 +10,8 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -51,7 +52,29 @@ public class GlobalExceptionHandler {
         return new JsonResult(1, null, err);
     }
 
-    @ExceptionHandler(DuplicateKeyException.class)
+    /**
+     * 缺少请求头参数
+     *
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public JsonResult MissingRequestHeaderExceptionHandler(MissingRequestHeaderException e) {
+        return new JsonResult(1, null, e.getMessage());
+    }
+
+    /**
+     * 缺少请求体的url参数
+     *
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public JsonResult MissingServletRequestParameterExceptionHandler(MissingServletRequestParameterException e) {
+        return new JsonResult(1, null, "missing params");
+    }
+
+    @ExceptionHandler(DuplicateKeyException.class)//数据库处理时遇到重复键
     public JsonResult DataBaseMessageDuplicateExceptionHandler(DuplicateKeyException e) {
 
         return new JsonResult(1, null, "the mobile has been registered.");
@@ -66,4 +89,10 @@ public class GlobalExceptionHandler {
     public JsonResult signatureExceptionHandler(SignatureVerificationException e) {
         return new JsonResult(1, null, e.getMessage());
     }
+
+    @ExceptionHandler(JWTDecodeException.class)
+    public JsonResult JwtDecodeExceptionHandler(JWTDecodeException e) {
+        return new JsonResult(1, null, e.getMessage());
+    }
+
 }

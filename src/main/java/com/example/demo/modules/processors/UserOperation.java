@@ -6,7 +6,7 @@ import com.example.demo.framework.jwt.contract.JWTContract;
 import com.example.demo.modules.entity.User;
 import com.example.demo.modules.mapper.UserMapper;
 import com.example.demo.modules.params.UserSampleStructure;
-import com.example.demo.modules.service.BaseEncode;
+import com.example.demo.modules.service.EncodeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +23,7 @@ public class UserOperation {
     @Autowired
     JWTContract jwtContract;
     @Autowired
-    BaseEncode baseEncode;
+    EncodeService encodeService;
     public String generateJwtByUser(User user) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", user.getId());
@@ -37,14 +37,18 @@ public class UserOperation {
         //        根据mobile与password寻找数据库信息
         Map<String, String> tempMap = new HashMap<>();
         tempMap.put("mobile", mobile);
-        tempMap.put("password", baseEncode.encode(password));
+        tempMap.put("password", encodeService.encode(password));
         User u = userMapper.selectOne(new QueryWrapper<User>().allEq(tempMap)); // user可能为null
         return u;
     }
-
-    public User getUserByJwt(String token) {
+    public Integer getUserIdByJwt(String token) {
         Map<String, ?> payloadMap = jwtContract.decode(token);//获取payload中的字段
-        return this.getUserById(Integer.valueOf(payloadMap.get("id").toString()));
+
+        return Integer.valueOf(payloadMap.get("id").toString());
+    }
+    public User getUserByJwt(String token) {
+
+        return this.getUserById(this.getUserIdByJwt(token));
 
     }
 
@@ -58,9 +62,9 @@ public class UserOperation {
         User u = new User();
         u.setMobile(params.getMobile());
         u.setUsername(params.getMobile());
-        u.setPassword(baseEncode.encode(params.getPassword()));//密码md5加密
-        u.setCreated_at(LocalDateTime.now());
-        u.setUpdated_at(LocalDateTime.now());
+        u.setPassword(encodeService.encode(params.getPassword()));//密码md5加密
+        u.setCreatedAt(LocalDateTime.now());
+        u.setUpdatedAt(LocalDateTime.now());
         userMapper.insert(u);
         return u;
     }
@@ -73,13 +77,14 @@ public class UserOperation {
     public User UpdateUserPassword(String oldPassword, String password, String token) {
         User user = this.getUserByJwt(token);
         if (user == null) throw new UserException("the jwt is invalid.");//判断是否获取到user实例
-        if (!user.getPassword().equals(oldPassword))
+        if (!user.getPassword().equals(encodeService.encode(oldPassword)))
             throw new UserException("original password is inconsistent. ");//验证原始密码
-        user.setUpdated_at(LocalDateTime.now());
-        user.setPassword(password);//修改用户密码
+        user.setUpdatedAt(LocalDateTime.now());
+        user.setPassword(encodeService.encode(password));//修改用户密码
         userMapper.updateById(user);//更新数据库
         return user;
     }
+
 
 
 }
