@@ -5,7 +5,6 @@ import com.example.demo.exception.UserException;
 import com.example.demo.framework.media.entity.UserFileDO;
 import com.example.demo.framework.media.mapper.UserFileMapper;
 import com.example.demo.framework.media.service.WebFileService;
-import com.example.demo.modules.data.PureUserFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
@@ -83,15 +82,9 @@ public class WebFileServiceImpl implements WebFileService {
     }
 
     @Override
-    public List<PureUserFile> display(Integer userId) {
+    public List<UserFileDO> display(Integer userId) {
 
-        List<UserFileDO> userFileDOs = userFileMapper.selectList(new QueryWrapper<UserFileDO>().eq("user_id", userId));
-        List<PureUserFile> pureUserFiles = new LinkedList<PureUserFile>();
-        for(UserFileDO userFileDO : userFileDOs){
-            pureUserFiles.add(new PureUserFile(userFileDO));
-        }
-
-        return pureUserFiles;
+        return userFileMapper.selectList(new QueryWrapper<UserFileDO>().eq("user_id", userId));
     }
 
 

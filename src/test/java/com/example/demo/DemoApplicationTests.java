@@ -4,32 +4,28 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.demo.framework.jwt.contract.JWTContract;
 import com.example.demo.framework.jwt.entity.JsonWebToken;
 import com.example.demo.modules.entity.User;
-import com.example.demo.framework.jwt.mapper.JsonWebTokenMapper;
 import com.example.demo.modules.mapper.UserMapper;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.Import;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @SpringBootTest
 class DemoApplicationTests {
 
     @Autowired
     User user;
-    @Resource
-    private UserMapper userMapper;
     @Autowired
     JsonWebToken jsonWebToken;
+    @Autowired
+    JWTContract jwtContract;
     @Resource
-    private JsonWebTokenMapper jsonWebTokenMapper;
+    private UserMapper userMapper;
 
     @Test
     void contextLoads() {
@@ -42,11 +38,6 @@ class DemoApplicationTests {
         Assert.assertEquals(2, userList.size());
         userList.forEach(System.out::println);
     }
-
-
-
-    @Autowired
-    JWTContract jwtContract;
 
     @Test
     void jwtCreatorTest() {
@@ -61,13 +52,5 @@ class DemoApplicationTests {
         System.out.println(s);
     }
 
-    @Test
-    void cInsert() {
-//        userMapper.insert(user);
-        jsonWebToken.setId(1);
-        jsonWebToken.setToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhdXRoMCJ9.izVguZPRsBQ5Rqw6dhMvcIwy8_9lQnrO3vpxGwPCuzs");
-        jsonWebTokenMapper.insert(jsonWebToken);
-        System.out.println(jsonWebToken);
-    }
 
 }
