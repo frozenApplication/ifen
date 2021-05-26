@@ -13,7 +13,6 @@ spring:
 logging:
   file:
     path: logs
-    max-size: 100MB
   pattern:
     dateformat: yyyy-MM-dd HH:mm:ss
   level:
