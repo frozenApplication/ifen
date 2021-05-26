@@ -144,6 +144,13 @@ public class UserController {
 //        return fileString;
 
     }
+
+    @GetMapping("api/v1/show_files")
+    public JsonResult showFiles(@RequestHeader("Authorization") String token) {
+        Integer userId = userOperation.getUserIdByJwt(token);
+
+        return new JsonResult(0,webFileService.display(userId),"success");
+    }
 }
 
 

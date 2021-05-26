@@ -5,6 +5,7 @@ import com.example.demo.exception.UserException;
 import com.example.demo.framework.media.entity.UserFileDO;
 import com.example.demo.framework.media.mapper.UserFileMapper;
 import com.example.demo.framework.media.service.WebFileService;
+import com.example.demo.modules.data.PureUserFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
@@ -15,6 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 @Service
 public class WebFileServiceImpl implements WebFileService {
@@ -77,6 +80,18 @@ public class WebFileServiceImpl implements WebFileService {
 
 
         response.flushBuffer(); //刷新内存中的文件流
+    }
+
+    @Override
+    public List<PureUserFile> display(Integer userId) {
+
+        List<UserFileDO> userFileDOs = userFileMapper.selectList(new QueryWrapper<UserFileDO>().eq("user_id", userId));
+        List<PureUserFile> pureUserFiles = new LinkedList<PureUserFile>();
+        for(UserFileDO userFileDO : userFileDOs){
+            pureUserFiles.add(new PureUserFile(userFileDO));
+        }
+
+        return pureUserFiles;
     }
 
 
