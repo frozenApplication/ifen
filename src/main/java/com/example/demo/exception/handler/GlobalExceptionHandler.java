@@ -1,6 +1,7 @@
 package com.example.demo.exception.handler;
 
 import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.example.demo.exception.UserException;
 import com.example.demo.modules.data.JsonResult;
@@ -28,7 +29,7 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     /**
-     * 处理参数验证不通过的
+     * 定义的参数验证不通过
      *
      * @param e
      * @return
@@ -53,7 +54,17 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 缺少请求头参数
+     * jwt验证失败
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(JWTVerificationException.class)
+    public JsonResult JWTVerificationExceptionHandler(JWTVerificationException e) {
+        return new JsonResult(1, null, e.getMessage());
+    }
+
+    /**
+     * 请求头参数缺失
      *
      * @param e
      * @return
@@ -74,25 +85,26 @@ public class GlobalExceptionHandler {
         return new JsonResult(1, null, "missing params");
     }
 
-    @ExceptionHandler(DuplicateKeyException.class)//数据库处理时遇到重复键
+    /**
+     * 数据库操作遇不可重复key
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(DuplicateKeyException.class)
     public JsonResult DataBaseMessageDuplicateExceptionHandler(DuplicateKeyException e) {
 
         return new JsonResult(1, null, "the mobile has been registered.");
     }
 
+    /**
+     * 自定义抛出异常
+     * @param e
+     * @return
+     */
     @ExceptionHandler(UserException.class)
     public JsonResult JsonResultUserExceptionHandler(UserException e) {
         return new JsonResult(1, null, e.getMessage());
     }
 
-    @ExceptionHandler(SignatureVerificationException.class)
-    public JsonResult signatureExceptionHandler(SignatureVerificationException e) {
-        return new JsonResult(1, null, e.getMessage());
-    }
-
-    @ExceptionHandler(JWTDecodeException.class)
-    public JsonResult JwtDecodeExceptionHandler(JWTDecodeException e) {
-        return new JsonResult(1, null, e.getMessage());
-    }
 
 }

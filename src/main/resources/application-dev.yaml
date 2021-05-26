@@ -9,3 +9,15 @@ spring:
     username: root
     password: 123456
     platform: mysql
+
+logging:
+  file:
+    path: logs
+    max-size: 100MB
+  pattern:
+    dateformat: yyyy-MM-dd HH:mm:ss
+  level:
+    root: warn
+    sql: error
+    com.yoyohr: info
+    org.springframework.boot.autoconfigure.logging: error
