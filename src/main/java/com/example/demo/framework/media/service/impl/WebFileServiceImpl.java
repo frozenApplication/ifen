@@ -5,6 +5,7 @@ import com.example.demo.exception.UserException;
 import com.example.demo.framework.media.entity.UserFileDO;
 import com.example.demo.framework.media.mapper.UserFileMapper;
 import com.example.demo.framework.media.service.WebFileService;
+import com.example.demo.framework.media.storage.FileStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
@@ -14,8 +15,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileStore;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 
 @Service
@@ -33,12 +34,16 @@ public class WebFileServiceImpl implements WebFileService {
      * @throws IOException
      */
     public void upload(MultipartFile file, Integer userId) throws IOException {
+
+
+
         InputStream inputStream = file.getInputStream();
         String fileMd5 = this.getFileMd5(inputStream);//getFileMd5操作会消耗生成器中的内容
 //        获得文件MD5值
 //        QueryWrapper<UserFileDO> wrapper = new QueryWrapper<>();
+
         Integer count = userFileMapper.selectCount(new QueryWrapper<UserFileDO>().eq("file_path", fileMd5));//查询数据库中是否存在
-        String filepath = "C:/file_store/" + fileMd5;
+        String filepath = FileStorage.getPath() +"/"+ fileMd5;
         File tempFile = new File(filepath);
 
 
@@ -65,7 +70,7 @@ public class WebFileServiceImpl implements WebFileService {
         UserFileDO userFileDO = userFileMapper.selectOne(new QueryWrapper<UserFileDO>().allEq(tempMap));//根据用户id和提供的文件名查询用户文件表
         if (userFileDO == null) throw new UserException("没有此文件");
 //
-        String filePath = "C:/file_store/" + userFileDO.getFilePath();
+        String filePath = FileStorage.getPath()+"/"+userFileDO.getFilePath();
         File file = new File(filePath);
         if (!file.exists()) throw new FileNotFoundException();
         InputStream io = new FileInputStream(filePath);

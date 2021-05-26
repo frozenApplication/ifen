@@ -33,7 +33,7 @@ public class SampleJWT implements JWTContract {
                     .withPayload(params)
                     .withIssuer("Auth0")      //这里设置为发起者
                     .withIssuedAt(new Date(System.currentTimeMillis()))
-                    .withExpiresAt(new Date(System.currentTimeMillis() + 30 * 1000))    //设置过期时间 30秒后
+                    .withExpiresAt(new Date(System.currentTimeMillis() + 300 * 1000))    //设置过期时间 5分钟后
                     .sign(algorithm);
 
         } catch (JWTCreationException exception) {

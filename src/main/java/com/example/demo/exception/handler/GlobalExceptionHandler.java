@@ -1,8 +1,6 @@
 package com.example.demo.exception.handler;
 
-import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.example.demo.exception.UserException;
 import com.example.demo.modules.data.JsonResult;
 import org.springframework.dao.DuplicateKeyException;
@@ -17,6 +15,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +54,7 @@ public class GlobalExceptionHandler {
 
     /**
      * jwt验证失败
+     *
      * @param e
      * @return
      */
@@ -87,6 +87,7 @@ public class GlobalExceptionHandler {
 
     /**
      * 数据库操作遇不可重复key
+     *
      * @param e
      * @return
      */
@@ -97,7 +98,18 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * 文件没有找到
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(FileNotFoundException.class)
+    public JsonResult FileNotFoundExceptionHandler(FileNotFoundException e) {
+        return new JsonResult(1, null, e.getMessage());
+    }
+
+    /**
      * 自定义抛出异常
+     *
      * @param e
      * @return
      */
