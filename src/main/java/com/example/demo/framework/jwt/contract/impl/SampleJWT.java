@@ -3,21 +3,16 @@ package com.example.demo.framework.jwt.contract.impl;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
-import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.impl.JWTParser;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTPartsParser;
-import com.auth0.jwt.interfaces.Payload;
+import com.auth0.jwt.interfaces.JWTVerifier;
 import com.example.demo.framework.jwt.contract.JWTContract;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 @Component
@@ -51,8 +46,12 @@ public class SampleJWT implements JWTContract {
     @Override
     public Map<String, Claim> decode(String jwt) {
         Algorithm algorithm = Algorithm.HMAC256(secret);
+        JWTVerifier verifier = JWT.require(algorithm)
+                .acceptLeeway(1) // 1 sec for nbf, iat and exp
+                .build();// 为了超时校验而使用verifier ， 不用超时可以直接用algorithm.verify(DecodeJwt)
         DecodedJWT result = JWT.decode(jwt);
-        algorithm.verify(result);
+        verifier.verify(result);
+//        algorithm.verify(result);
         JWTPartsParser jwtParser = new JWTParser();
         return result.getClaims();
     }

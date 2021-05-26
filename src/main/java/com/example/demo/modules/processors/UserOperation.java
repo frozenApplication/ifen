@@ -14,6 +14,7 @@ import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @Component
 public class UserOperation {
@@ -24,6 +25,7 @@ public class UserOperation {
     JWTContract jwtContract;
     @Autowired
     EncodeService encodeService;
+
     public String generateJwtByUser(User user) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", user.getId());
@@ -41,11 +43,7 @@ public class UserOperation {
         User u = userMapper.selectOne(new QueryWrapper<User>().allEq(tempMap)); // user可能为null
         return u;
     }
-    public Integer getUserIdByJwt(String token) {
-        Map<String, ?> payloadMap = jwtContract.decode(token);//获取payload中的字段
 
-        return Integer.valueOf(payloadMap.get("id").toString());
-    }
     public User getUserByJwt(String token) {
 
         return this.getUserById(this.getUserIdByJwt(token));
@@ -54,6 +52,12 @@ public class UserOperation {
 
     public User getUserById(Integer id) {
         return userMapper.selectById(id);
+    }
+
+    public Integer getUserIdByJwt(String token) {
+        Map<String, ?> payloadMap = jwtContract.decode(token);//获取payload中的字段
+
+        return Integer.valueOf(payloadMap.get("id").toString());
     }
 
 
@@ -74,17 +78,17 @@ public class UserOperation {
     }
 
 
-    public User UpdateUserPassword(String oldPassword, String password, String token) {
+    public User updateUserPassword(String oldPassword, String password, String token) {
         User user = this.getUserByJwt(token);
-        if (user == null) throw new UserException("the jwt is invalid.");//判断是否获取到user实例
-        if (!user.getPassword().equals(encodeService.encode(oldPassword)))
-            throw new UserException("original password is inconsistent. ");//验证原始密码
+        if (user == null) throw new UserException("the jwt is invalid.");//获取不到user实例，抛出
+        if (!Objects.equals(user.getPassword(), encodeService.encode(oldPassword))) {
+            throw new UserException("original password is inconsistent. ");//密码不同，抛出
+        }
         user.setUpdatedAt(LocalDateTime.now());
         user.setPassword(encodeService.encode(password));//修改用户密码
         userMapper.updateById(user);//更新数据库
         return user;
     }
-
 
 
 }

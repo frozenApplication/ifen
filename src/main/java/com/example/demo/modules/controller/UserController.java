@@ -115,7 +115,7 @@ public class UserController {
     @PostMapping("/api/v1/change_pwd")
     public JsonResult updateUserPassword(String oldPassword, String password, String password2, @RequestHeader("Authorization") String token) {
         if (!password.equals(password2)) return new JsonResult(1, null, "password is inconsistent.");//验证新密码相同
-        User user = userOperation.UpdateUserPassword(oldPassword, password, token);
+        User user = userOperation.updateUserPassword(oldPassword, password, token);
         return new JsonResult(1, new NotPasswordUser(user), "success");
     }
 
