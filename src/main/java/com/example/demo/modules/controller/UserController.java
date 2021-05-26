@@ -80,6 +80,7 @@ public class UserController {
         User user = userOperation.getUserByJwt(authorization);
         if (user == null) return new JsonResult(1, null, "the jwt is invalid.");
 
+        response.setHeader("Authorization", userOperation.generateJwtByUser(user));//设置Authorization响应头
         return new JsonResult(0, new NotPasswordUser(user), "success");
     }
 
@@ -101,6 +102,7 @@ public class UserController {
         user.setUsername(name);
         user.setUpdatedAt(LocalDateTime.now());
         userOperation.updateUser(user);
+        response.setHeader("Authorization", userOperation.generateJwtByUser(user));//设置Authorization响应头
         return new JsonResult(1, new NotPasswordUser(user), "success");
     }
 
@@ -116,6 +118,7 @@ public class UserController {
     public JsonResult updateUserPassword(String oldPassword, String password, String password2, @RequestHeader("Authorization") String token) {
         if (!password.equals(password2)) return new JsonResult(1, null, "password is inconsistent.");//验证新密码相同
         User user = userOperation.updateUserPassword(oldPassword, password, token);
+        response.setHeader("Authorization", userOperation.generateJwtByUser(user));//设置Authorization响应头
         return new JsonResult(1, new NotPasswordUser(user), "success");
     }
 
@@ -149,7 +152,7 @@ public class UserController {
     public JsonResult showFiles(@RequestHeader("Authorization") String token) {
         Integer userId = userOperation.getUserIdByJwt(token);
 
-        return new JsonResult(0,webFileService.display(userId),"success");
+        return new JsonResult(0, webFileService.display(userId), "success");
     }
 }
 

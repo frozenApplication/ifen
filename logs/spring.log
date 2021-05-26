@@ -61,3 +61,4 @@ com.auth0.jwt.exceptions.TokenExpiredException: The Token has expired on Wed May
 	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61) ~[tomcat-embed-core-9.0.45.jar:9.0.45]
 	at java.base/java.lang.Thread.run(Thread.java:834) ~[na:na]
 
+2021-05-26 14:21:20  WARN 8892 --- [restartedMain] c.b.m.core.metadata.TableInfoHelper      : Can not find table primary key in Class: "com.example.demo.framework.media.entity.UserFileDO".
