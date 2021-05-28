@@ -1,0 +1,22 @@
+package {com.example.demo.modules.controller;}
+
+import com.example.demo.modules.data.JsonResult;
+import com.example.demo.modules.params.Talent;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+
+@RestController
+public class {{classname}}Controller {
+
+    @Autowired
+    HttpServletRequest httpServletRequest;
+
+    @GetMapping("api/talent")
+    {{recode}}
+    public JsonResult {{pushPalent}}() {
+        return new JsonResult(200, new Talent(), "hello");
+    }
+}

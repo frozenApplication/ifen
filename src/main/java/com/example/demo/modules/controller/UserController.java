@@ -76,7 +76,7 @@ public class UserController {
      * @return 返回json格式, code:int 0成功,1失败 /data:Map /message:String 成功或者失败信息
      */
     @GetMapping("/api/v1/me")
-    public JsonResult getCurrentUserMessage(@RequestHeader("Authorization") String authorization) {
+    public JsonResult getCurrentUserMessage(@RequestHeader("Authorization") String authorization,@RequestAttribute Integer ids) {
         User user = userOperation.getUserByJwt(authorization);
         if (user == null) return new JsonResult(1, null, "the jwt is invalid.");
 
