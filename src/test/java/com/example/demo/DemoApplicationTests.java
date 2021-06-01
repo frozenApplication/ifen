@@ -9,6 +9,12 @@ import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.GeoResults;
+import org.springframework.data.geo.Point;
+import org.springframework.data.redis.connection.RedisGeoCommands;
+import org.springframework.data.redis.core.GeoOperations;
+import org.springframework.data.redis.core.RedisOperations;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
@@ -24,6 +30,8 @@ class DemoApplicationTests {
     JsonWebToken jsonWebToken;
     @Autowired
     JWTContract jwtContract;
+    @Autowired
+    RedisOperations<String, String> operations;
     @Resource
     private UserMapper userMapper;
 
@@ -44,6 +52,15 @@ class DemoApplicationTests {
         System.out.println(jwtContract.encode(new HashMap<>() {{
             put("hello", "world");
         }}));
+    }
+
+    @Test
+    void RedisTest() {
+        GeoOperations<String, String> geoOperations = operations.opsForGeo();
+        geoOperations.add("Sicily", new Point(15.087269, 37.502669), "Catania");
+        GeoResults<RedisGeoCommands.GeoLocation<String>> radius = geoOperations.radius("Sicily", "Catania",
+                new Distance(100, RedisGeoCommands.DistanceUnit.KILOMETERS));
+//        radius.forEach(System.out::println);
     }
 
     @Test
